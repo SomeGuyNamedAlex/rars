@@ -38,7 +38,7 @@ public class DefaultInputHandler extends InputHandler {
     public void addDefaultKeyBindings() {
         addKeyBinding("BACK_SPACE", BACKSPACE);
         addKeyBinding("C+BACK_SPACE", BACKSPACE_WORD);
-        addKeyBinding("M+BACK_SPACE", BACKSPACE_WORD);
+        addKeyBinding("M+BACK_SPACE", DELETE_LINE);
         addKeyBinding("DELETE", DELETE);
         addKeyBinding("C+DELETE", DELETE_WORD);
 
@@ -388,5 +388,5 @@ public class DefaultInputHandler extends InputHandler {
 
     private DefaultInputHandler(DefaultInputHandler copy) {
         bindings = currentBindings = copy.bindings;
-    }
+    }   
 }

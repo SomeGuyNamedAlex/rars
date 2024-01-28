@@ -47,6 +47,7 @@ public abstract class InputHandler extends KeyAdapter {
     public static final ActionListener BACKSPACE_WORD = new backspace_word();
     public static final ActionListener DELETE = new delete();
     public static final ActionListener DELETE_WORD = new delete_word();
+    public static final ActionListener DELETE_LINE = new delete_line();
     public static final ActionListener END = new end(false);
     public static final ActionListener DOCUMENT_END = new document_end(false);
     public static final ActionListener SELECT_ALL = new select_all();
@@ -519,6 +520,32 @@ public abstract class InputHandler extends KeyAdapter {
             try {
                 textArea.getDocument().remove(start,
                         (caret + lineStart) - start);
+            } catch (BadLocationException bl) {
+                bl.printStackTrace();
+            }
+        }
+    }
+
+    public static class delete_line implements ActionListener {
+        public void actionPerformed(ActionEvent evt) {
+            JEditTextArea textArea = getTextArea(evt);
+
+            int start = textArea.getSelectionStart();
+
+            int line = textArea.getCaretLine();
+            int lineStart = textArea.getLineStartOffset(line);
+
+            if (lineStart >= start) {
+                if (line == 0) {
+                    textArea.getToolkit().beep();
+                    return;
+                }
+
+                lineStart = textArea.getLineEndOffset(line - 1) - 1;
+            }
+
+            try {
+                textArea.getDocument().remove(lineStart, start - lineStart);
             } catch (BadLocationException bl) {
                 bl.printStackTrace();
             }
