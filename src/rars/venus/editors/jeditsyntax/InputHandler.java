@@ -66,6 +66,7 @@ public abstract class InputHandler extends KeyAdapter {
     public static final ActionListener NEXT_WORD = new next_word(false);
     public static final ActionListener SELECT_NEXT_CHAR = new next_char(true);
     public static final ActionListener SELECT_NEXT_LINE = new next_line(true);
+    public static final ActionListener SELECT_LINE = new select_line();
     public static final ActionListener SELECT_NEXT_PAGE = new next_page(true);
     public static final ActionListener SELECT_NEXT_WORD = new next_word(true);
     public static final ActionListener OVERWRITE = new overwrite();
@@ -113,6 +114,7 @@ public abstract class InputHandler extends KeyAdapter {
         actions.put("next-word", NEXT_WORD);
         actions.put("select-next-char", SELECT_NEXT_CHAR);
         actions.put("select-next-line", SELECT_NEXT_LINE);
+        actions.put("select-line", SELECT_LINE);
         actions.put("select-next-page", SELECT_NEXT_PAGE);
         actions.put("select-next-word", SELECT_NEXT_WORD);
         actions.put("overwrite", OVERWRITE);
@@ -549,6 +551,19 @@ public abstract class InputHandler extends KeyAdapter {
             } catch (BadLocationException bl) {
                 bl.printStackTrace();
             }
+        }
+    }
+
+    public static class select_line implements ActionListener {
+        public void actionPerformed(ActionEvent evt) {
+            JEditTextArea textArea = getTextArea(evt);
+
+            int line = textArea.getCaretLine();
+            int lineStart = textArea.getLineStartOffset(line);
+            int lineEnd = textArea.getLineEndOffset(line);
+
+            textArea.setSelectionStart(lineStart);
+            textArea.setSelectionEnd(lineEnd);
         }
     }
 

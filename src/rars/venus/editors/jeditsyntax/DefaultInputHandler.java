@@ -76,6 +76,8 @@ public class DefaultInputHandler extends InputHandler {
         addKeyBinding("S+UP", SELECT_PREV_LINE);
         addKeyBinding("DOWN", NEXT_LINE);
         addKeyBinding("S+DOWN", SELECT_NEXT_LINE);
+        addKeyBinding("M+L", SELECT_LINE); // CMD + L, mostly used on macOS
+        addKeyBinding("C+L", SELECT_LINE); // CTRL + L, mostly used on Windows
 
         addKeyBinding("C+ENTER", REPEAT);
 
