@@ -308,6 +308,13 @@ public class EditPane extends JPanel implements Observer {
         return this.fileStatus.getPathname();
     }
 
+    /**
+     * Delegates to corresponding FileStatus method
+     */
+    public String getAbsolutePath() {
+        return this.fileStatus.getAbsolutePath();
+    }
+
 
     /**
      * Delegates to corresponding FileStatus method

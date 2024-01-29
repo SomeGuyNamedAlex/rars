@@ -320,6 +320,15 @@ public class FileStatus {
     }
 
     /**
+     * Get the file's absolute path.  See java.io.File.getAbsolutePath()
+     *
+     * @return absolute path as a String.  Null if the file is null
+     */
+    public String getAbsolutePath() {
+        return (this.file == null) ? null : this.file.getAbsolutePath();
+    }
+
+    /**
      * Get file name with no path information.  See java.io.File.getName()
      *
      * @return filename as a String

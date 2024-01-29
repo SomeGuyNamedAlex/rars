@@ -150,9 +150,11 @@ public class Launch {
         simulateErrorExitCode = 0;
         registerDisplayList = new ArrayList<>();
         memoryDisplayList = new ArrayList<>();
-        filenameList = new ArrayList<>();
         MemoryConfigurations.setCurrentConfiguration(MemoryConfigurations.getDefaultConfiguration());
         out = System.out;
+
+        // Get paths list of last opened files
+        this.filenameList = Globals.getSettings().getEditorLastOpenFiles();
 
         if (!parseCommandArgs(args)) {
             System.exit(Globals.exitCode);
@@ -770,4 +772,4 @@ public class Launch {
 
 }
 
-   	
+

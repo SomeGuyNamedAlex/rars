@@ -12,6 +12,8 @@ import java.util.Observable;
 import java.util.StringTokenizer;
 import java.util.prefs.BackingStoreException;
 import java.util.prefs.Preferences;
+import java.util.Arrays;
+import java.util.ArrayList;
 
 /*
 Copyright (c) 2003-2013,  Pete Sanderson and Kenneth Vollmar
@@ -210,8 +212,13 @@ public class Settings extends Observable {
      * Number of letters to be matched by editor's instruction guide before popup generated (if popup enabled)
      */
     public static final int EDITOR_POPUP_PREFIX_LENGTH = 6;
+    /**
+     * Files that was opened last time the editor was running
+     */
+    public static int EDITOR_LAST_OPENED_FILES = 7;
+
     // Match the above by position.
-    private static final String[] stringSettingsKeys = {"ExceptionHandler", "TextColumnOrder", "LabelSortState", "MemoryConfiguration", "CaretBlinkRate", "EditorTabSize", "EditorPopupPrefixLength"};
+    private static final String[] stringSettingsKeys = {"ExceptionHandler", "TextColumnOrder", "LabelSortState", "MemoryConfiguration", "CaretBlinkRate", "EditorTabSize", "EditorPopupPrefixLength", "EditorLastOpenedFiles"};
 
     /**
      * Last resort default values for String settings;
@@ -219,7 +226,7 @@ public class Settings extends Observable {
      * If you wish to change, do so before instantiating the Settings object.
      * Must match key by list position.
      */
-    private static String[] defaultStringSettingsValues = {"", "0 1 2 3 4", "0", "", "500", "8", "2"};
+    private static String[] defaultStringSettingsValues = {"", "0 1 2 3 4", "0", "", "500", "8", "2", ""};
 
 
     // FONT SETTINGS.  Each array position has associated name.
@@ -777,6 +784,16 @@ public class Settings extends Observable {
         }
     }
 
+    /**
+     * Get last opened files in the editor
+     */
+    public ArrayList<String> getEditorLastOpenFiles() {
+        String lastFilesFromStorage = stringSettingsValues[EDITOR_LAST_OPENED_FILES];
+
+        return new ArrayList<String>(Arrays.asList(lastFilesFromStorage.split(",")));
+    }
+
+
     ////////////////////////////////////////////////////////////////////////
     //  Setting Setters
     ////////////////////////////////////////////////////////////////////////
@@ -958,6 +975,19 @@ public class Settings extends Observable {
      */
     public ColorMode getDefaultColorMode() {
         return defaultColorMode;
+    }
+
+    /**
+     * Store the last opened files in the editor setting.
+     */
+    public void setEditorLastOpenFiles(ArrayList<String> files) {
+        String stringifiedFiles = "";
+
+        for (String s : files) {
+            stringifiedFiles += s;
+        }
+
+        setStringSetting(EDITOR_LAST_OPENED_FILES, stringifiedFiles);
     }
 
     /////////////////////////////////////////////////////////////////////////

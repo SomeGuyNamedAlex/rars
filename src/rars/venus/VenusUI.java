@@ -17,6 +17,7 @@ import java.awt.*;
 import java.awt.event.*;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Arrays;
 
 /*
 Copyright (c) 2003-2013,  Pete Sanderson and Kenneth Vollmar
@@ -118,7 +119,7 @@ public class VenusUI extends JFrame {
      * Constructor for the Class. Sets up a window object for the UI
      *
      * @param name Name of the window to be created.
-     * @param paths File paths to open width
+     * @param paths File paths to open
      **/
 
     public VenusUI(String name, ArrayList<String> paths) {
@@ -227,7 +228,11 @@ public class VenusUI extends JFrame {
         this.addWindowListener(
                 new WindowAdapter() {
                     public void windowClosing(WindowEvent e) {
+                        // Get the files currently opened
+                        ArrayList<String> files = new ArrayList<>(Arrays.asList(mainUI.editor.getOpenFileAbsolutePaths()));
                         if (mainUI.editor.closeAll()) {
+                            // Save the files to preferences
+                            Globals.getSettings().setEditorLastOpenFiles(files);
                             System.exit(0);
                         }
                     }

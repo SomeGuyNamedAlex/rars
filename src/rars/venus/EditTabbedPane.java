@@ -431,6 +431,16 @@ public class EditTabbedPane extends JTabbedPane {
         }
         return tabs;
     }
+
+    public String[] getOpenFileAbsolutePaths() {
+        int tabCount = getTabCount();
+        String[] tabs = new String[tabCount];
+        for (int i = 0; i < tabCount; i++) {
+            tabs[i] = ((EditPane) getComponentAt(i)).getAbsolutePath();
+        }
+        return tabs;
+    }
+    
     /**
      * Remove the pane and update menu status
      */
