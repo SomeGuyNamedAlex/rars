@@ -132,7 +132,7 @@ public class VenusUI extends JFrame {
         double screenHeight = Toolkit.getDefaultToolkit().getScreenSize().getHeight();
         // basically give up some screen space if running at 800 x 600
         double messageWidthPct = (screenWidth < 1000.0) ? 0.67 : 0.73;
-        double messageHeightPct = (screenWidth < 1000.0) ? 0.12 : 0.15;
+        double messageHeightPct = (screenWidth < 1000.0) ? 0.10 : 0.13;
         double mainWidthPct = (screenWidth < 1000.0) ? 0.67 : 0.73;
         double mainHeightPct = (screenWidth < 1000.0) ? 0.60 : 0.65;
         double registersWidthPct = (screenWidth < 1000.0) ? 0.18 : 0.22;
