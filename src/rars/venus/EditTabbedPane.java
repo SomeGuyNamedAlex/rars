@@ -335,7 +335,7 @@ public class EditTabbedPane extends JTabbedPane {
     private File saveAsFile(EditPane editPane) {
         File theFile = null;
         if (editPane != null) {
-            JFileChooser saveDialog = null;
+            FileDialog saveDialog = new FileDialog(mainUI, "Save As", FileDialog.SAVE);
             boolean operationOK = false;
             while (!operationOK) {
                 // Set Save As dialog directory in a logical way.  If file in
@@ -343,44 +343,30 @@ public class EditTabbedPane extends JTabbedPane {
                 // If a new file (mipsN.asm), default to current save directory.
                 // DPS 13-July-2011
                 if (editPane.isNew()) {
-                    saveDialog = new JFileChooser(editor.getCurrentSaveDirectory());
+                    saveDialog.setDirectory(editor.getCurrentSaveDirectory());
                 } else {
                     File f = new File(editPane.getPathname());
                     if (f != null) {
-                        saveDialog = new JFileChooser(f.getParent());
+                        saveDialog.setDirectory(f.getParent());
                     } else {
-                        saveDialog = new JFileChooser(editor.getCurrentSaveDirectory());
+                        saveDialog.setDirectory(editor.getCurrentSaveDirectory());
                     }
                 }
-                String paneFile = editPane.getFilename();
-                if (paneFile != null) saveDialog.setSelectedFile(new File(paneFile));
-                // end of 13-July-2011 code.
-                saveDialog.setDialogTitle("Save As");
 
-                int decision = saveDialog.showSaveDialog(mainUI);
-                if (decision != JFileChooser.APPROVE_OPTION) {
+                saveDialog.setFile(editPane.getFilename());
+                // end of 13-July-2011 code.
+
+                
+                saveDialog.setVisible(true);
+
+                // If no file was selected / user canceled the action, stop here
+                if (saveDialog.getFile() == null) {
                     return null;
                 }
-                theFile = saveDialog.getSelectedFile();
+
+                theFile = new File(saveDialog.getDirectory() + saveDialog.getFile());
+
                 operationOK = true;
-                if (theFile.exists()) {
-                    int overwrite = JOptionPane.showConfirmDialog(mainUI,
-                            "File " + theFile.getName() + " already exists.  Do you wish to overwrite it?",
-                            "Overwrite existing file?",
-                            JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.WARNING_MESSAGE);
-                    switch (overwrite) {
-                        case JOptionPane.YES_OPTION:
-                            operationOK = true;
-                            break;
-                        case JOptionPane.NO_OPTION:
-                            operationOK = false;
-                            break;
-                        case JOptionPane.CANCEL_OPTION:
-                            return null;
-                        default: // should never occur
-                            return null;
-                    }
-                }
             }
             // Either file with selected name does not exist or user wants to 
             // overwrite it, so go for it!
@@ -536,7 +522,7 @@ public class EditTabbedPane extends JTabbedPane {
 
     private class FileOpener {
         private File mostRecentlyOpenedFile;
-        private JFileChooser fileChooser;
+        private FileDialog fileChooser;
         private int fileFilterCount;
         private ArrayList<FileFilter> fileFilterList;
         private PropertyChangeListener listenForUserAddedFileFilter;
@@ -545,55 +531,60 @@ public class EditTabbedPane extends JTabbedPane {
         public FileOpener(Editor theEditor) {
             this.mostRecentlyOpenedFile = null;
             this.theEditor = theEditor;
-            this.fileChooser = new JFileChooser();
+            this.fileChooser = new FileDialog(mainUI, "Choose a file", FileDialog.LOAD);
             this.listenForUserAddedFileFilter = new ChoosableFileFilterChangeListener();
             this.fileChooser.addPropertyChangeListener(this.listenForUserAddedFileFilter);
 
             // Note: add sequence is significant - last one added becomes default.
             fileFilterList = new ArrayList<>();
-            fileFilterList.add(fileChooser.getAcceptAllFileFilter());
+            //fileFilterList.add(fileChooser.getAcceptAllFileFilter());
             fileFilterList.add(FilenameFinder.getFileFilter(Globals.fileExtensions, "Assembler Files", true));
             fileFilterCount = 0; // this will trigger fileChooser file filter load in next line
-            setChoosableFileFilters();
+            //setChoosableFileFilters();
         }
 
         /*
          * Launch a file chooser for name of file to open.  Return true if file opened, false otherwise
          */
         private boolean openFile() {
-            // The fileChooser's list may be rebuilt from the master ArrayList if a new filter
-            // has been added by the user.
-            setChoosableFileFilters();
-            // get name of file to be opened and load contents into text editing area.
-            fileChooser.setCurrentDirectory(new File(theEditor.getCurrentOpenDirectory()));
+            fileChooser.setDirectory(theEditor.getCurrentOpenDirectory());
+
+
             // Set default to previous file opened, if any.  This is useful in conjunction
             // with option to assemble file automatically upon opening.  File likely to have
             // been edited externally (e.g. by Mipster).
             if (Globals.getSettings().getBooleanSetting(Settings.Bool.ASSEMBLE_ON_OPEN) && mostRecentlyOpenedFile != null) {
-                fileChooser.setSelectedFile(mostRecentlyOpenedFile);
+                fileChooser.setFile(mostRecentlyOpenedFile.getPath());
             }
 
-            if (fileChooser.showOpenDialog(mainUI) == JFileChooser.APPROVE_OPTION) {
-                File theFile = fileChooser.getSelectedFile();
-                theEditor.setCurrentOpenDirectory(theFile.getParent());
-                //theEditor.setCurrentSaveDirectory(theFile.getParent());// 13-July-2011 DPS.
-                if (!openFile(theFile)) {
-                    return false;
-                }
 
-                // possibly send this file right through to the assembler by firing Run->Assemble's
-                // actionPerformed() method.
-                if (theFile.canRead() && Globals.getSettings().getBooleanSetting(Settings.Bool.ASSEMBLE_ON_OPEN)) {
-                    mainUI.getRunAssembleAction().actionPerformed(null);
-                }
+            fileChooser.setVisible(true);
+
+            String filename = fileChooser.getDirectory() + fileChooser.getFile();
+
+            if (filename == null) {
+                return false;
             }
+
+            File theFile = new File(filename);
+            theEditor.setCurrentOpenDirectory(theFile.getParent());
+
+            if (!openFile(theFile)) {
+                return false;
+            }
+
+            // possibly send this file right through to the assembler by firing Run->Assemble's
+            // actionPerformed() method.
+            if (theFile.canRead() && Globals.getSettings().getBooleanSetting(Settings.Bool.ASSEMBLE_ON_OPEN)) {
+                mainUI.getRunAssembleAction().actionPerformed(null);
+            }
+            
             return true;
         }
       
        /*
         * Open the specified file.  Return true if file opened, false otherwise
         */
-
         private boolean openFile(File theFile) {
             try {
                 theFile = theFile.getCanonicalFile();
@@ -664,49 +655,8 @@ public class EditTabbedPane extends JTabbedPane {
             }
             return true;
         }
-
-        // Private method to generate the file chooser's list of choosable file filters.
-        // It is called when the file chooser is created, and called again each time the Open
-        // dialog is activated.  We do this because the user may have added a new filter
-        // during the previous dialog.  This can be done by entering e.g. *.txt in the file
-        // name text field.  Java is funny, however, in that if the user does this then
-        // cancels the dialog, the new filter will remain in the list BUT if the user does
-        // this then ACCEPTS the dialog, the new filter will NOT remain in the list.  However
-        // the act of entering it causes a property change event to occur, and we have a
-        // handler that will add the new filter to our internal filter list and "restore" it
-        // the next time this method is called.  Strangely, if the user then similarly
-        // adds yet another new filter, the new one becomes simply a description change
-        // to the previous one, the previous object is modified AND NO PROPERTY CHANGE EVENT
-        // IS FIRED!  I could obviously deal with this situation if I wanted to, but enough
-        // is enough.  The limit will be one alternative filter at a time.
-        // DPS... 9 July 2008
-
-        private void setChoosableFileFilters() {
-            // See if a new filter has been added to the master list.  If so,
-            // regenerate the fileChooser list from the master list.
-            if (fileFilterCount < fileFilterList.size() ||
-                    fileFilterList.size() != fileChooser.getChoosableFileFilters().length) {
-                fileFilterCount = fileFilterList.size();
-                // First, "deactivate" the listener, because our addChoosableFileFilter
-                // calls would otherwise activate it!  We want it to be triggered only
-                // by MARS user action.
-                boolean activeListener = false;
-                if (fileChooser.getPropertyChangeListeners().length > 0) {
-                    fileChooser.removePropertyChangeListener(listenForUserAddedFileFilter);
-                    activeListener = true;  // we'll note this, for re-activation later
-                }
-                // clear out the list and populate from our own ArrayList.
-                // Last one added becomes the default.
-                fileChooser.resetChoosableFileFilters();
-                for (FileFilter ff : fileFilterList) {
-                    fileChooser.addChoosableFileFilter(ff);
-                }
-                // Restore listener.
-                if (activeListener) {
-                    fileChooser.addPropertyChangeListener(listenForUserAddedFileFilter);
-                }
-            }
-        }//////////////////////////////////////////////////////////////////////////////////
+        
+        //////////////////////////////////////////////////////////////////////////////////
         //  Private inner class for special property change listener.  DPS 9 July 2008.
         //  If user adds a file filter, e.g. by typing *.txt into the file text field then pressing
         //  Enter, then it is automatically added to the array of choosable file filters.  BUT, unless you
